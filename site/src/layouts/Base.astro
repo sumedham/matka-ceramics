@@ -50,6 +50,9 @@ const isShop = path === '/' || path.startsWith('/piece');
         <nav class="mk-nav">
           <a href="/" aria-current={isShop ? 'page' : undefined}>Ceramics</a>
           <a href="/about" aria-current={path === '/about' ? 'page' : undefined}>About</a>
+          <!-- A section of About rather than its own page, so the menu grows by
+               one word instead of the shop gaining another thing to maintain. -->
+          <a href="/about#commissions">Commissions</a>
           <a class="cart" href="/cart">Cart (<span data-cart-count>0</span>)</a>
         </nav>
       </aside>

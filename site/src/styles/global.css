@@ -184,6 +184,8 @@ button,input,select,textarea{font:inherit;color:inherit}
   font-family:'Instrument Serif',Georgia,serif;
   font-size:21px;font-weight:400;line-height:1.2;letter-spacing:-.01em;
   text-transform:none;color:var(--ink);margin:30px 0 10px;
+  /* so a heading jumped to from the menu isn't flush against the window edge */
+  scroll-margin-top:24px;
 }
 .mk-page p{margin:0 0 12px;line-height:1.65}
 .mk-page a{text-decoration:underline;text-underline-offset:3px}
