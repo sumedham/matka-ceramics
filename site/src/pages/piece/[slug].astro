@@ -1,0 +1,74 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const products = await getCollection('products');
+  return products.map((p) => ({ params: { slug: p.id }, props: { p } }));
+}
+
+const { p } = Astro.props;
+const { Content } = await render(p);
+const shots = [p.data.image, ...(p.data.gallery ?? [])];
+---
+
+<Base title={`${p.data.title} — Matka Ceramics`}>
+  <article class="mk-product">
+    <div class="mk-product-imgs">
+      {
+        shots.map((shot, i) => (
+          <Image
+            src={shot}
+            alt={p.data.title}
+            widths={[480, 960, 1400]}
+            sizes="(max-width: 460px) 100vw, 55vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        ))
+      }
+    </div>
+
+    <div class="mk-product-info">
+      <h1>{p.data.title}</h1>
+      <p class="mk-product-price">${p.data.price}</p>
+
+      <div class="mk-product-desc"><Content /></div>
+
+      {
+        p.data.soldOut ? (
+          <p class="mk-sold">Sold out — this one was the only one</p>
+        ) : (
+          <div class="mk-form">
+            <button class="mk-btn" type="button" data-add={p.id}>
+              Add to cart
+            </button>
+            <p class="mk-note">One of a kind. Ships from Brooklyn in 3–5 days.</p>
+          </div>
+        )
+      }
+    </div>
+  </article>
+</Base>
+
+<script>
+  import { add, has } from '../../scripts/cart';
+
+  const btn = document.querySelector<HTMLButtonElement>('[data-add]');
+  if (btn) {
+    const id = btn.dataset.add!;
+
+    const paint = () => {
+      const inCart = has(id);
+      btn.textContent = inCart ? 'In your cart' : 'Add to cart';
+      btn.disabled = inCart;
+    };
+
+    btn.addEventListener('click', () => {
+      add(id);
+      paint();
+    });
+
+    paint();
+  }
+</script>

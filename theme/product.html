@@ -1,0 +1,53 @@
+{% comment %}
+  Individual product page.
+
+  NOTE: the add-to-cart form below is the one part of this theme I could not
+  verify against a live Big Cartel store. Preview it and add something to the
+  cart BEFORE you publish. If it misbehaves, paste the <form> block from your
+  current theme's Product template in its place — everything else here is
+  presentational and will keep working.
+{% endcomment %}
+
+<article class="mk-product">
+
+  <div class="mk-product-imgs">
+    {% for image in product.images %}
+      <img src="{{ image | product_image_url: 'large' }}"
+           alt="{{ product.name }}"
+           loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+    {% endfor %}
+  </div>
+
+  <div class="mk-product-info">
+    <h1>{{ product.name }}</h1>
+    <p class="mk-product-price">{{ product.price | money_with_sign }}</p>
+
+    {% if product.description != blank %}
+      <div class="mk-product-desc">{{ product.description }}</div>
+    {% endif %}
+
+    {% if product.status == 'sold-out' %}
+      <p class="mk-sold">Sold out &mdash; this one was the only one</p>
+    {% elsif product.status == 'coming-soon' %}
+      <p class="mk-sold">Coming soon</p>
+    {% else %}
+      <form class="mk-form" method="post" action="{{ store.url }}/cart">
+        {% if product.has_option_groups or product.options.size > 1 %}
+          <select name="cart[add][id]" aria-label="Choose an option">
+            {% for option in product.options %}
+              {% if option.sold_out %}
+                <option disabled>{{ option.name }} &mdash; sold out</option>
+              {% else %}
+                <option value="{{ option.id }}">{{ option.name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        {% else %}
+          <input type="hidden" name="cart[add][id]" value="{{ product.options.first.id }}">
+        {% endif %}
+        <button class="mk-btn" type="submit">Add to cart</button>
+      </form>
+    {% endif %}
+  </div>
+
+</article>

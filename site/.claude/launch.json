@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "matka-site",
+      "runtimeExecutable": "/Users/sumedha.mehta/.local/node/bin/npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4321"],
+      "port": 4321
+    }
+  ]
+}

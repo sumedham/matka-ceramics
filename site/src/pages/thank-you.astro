@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Thank you — Matka Ceramics">
+  <section class="mk-page">
+    <h1>Thank you</h1>
+
+    <p>
+      Your order is in. Stripe has emailed you a receipt, and you'll get a second
+      email with a tracking number once the label is printed — usually within
+      3–5 business days.
+    </p>
+
+    <p>
+      Because every piece is one of a kind, yours is now marked sold on the site.
+      Nobody else was going to get that one.
+    </p>
+
+    <p>
+      Anything at all, email <a href="mailto:hello@matkaceramics.store">hello@matkaceramics.store</a>.
+      <a href="/">Back to the ceramics</a>.
+    </p>
+  </section>
+</Base>
+
+<script>
+  // The order is placed; the cart has done its job.
+  import { clear } from '../scripts/cart';
+  clear();
+</script>

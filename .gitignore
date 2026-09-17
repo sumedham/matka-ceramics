@@ -1,0 +1,25 @@
+# dependencies + build output
+node_modules/
+dist/
+.astro/
+
+# wrangler / cloudflare local state
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# secrets — Stripe keys live in the Cloudflare dashboard, never in the repo
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# editors
+.idea/
+.vscode/

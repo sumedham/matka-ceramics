@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+import Wordmark from '../components/Wordmark.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+// Ids that can still be bought. The badge filters against these so it can never
+// disagree with the cart page — a stale or sold id shouldn't be counted.
+const availableIds = (await getCollection('products'))
+  .filter((p) => !p.data.soldOut)
+  .map((p) => p.id);
+
+const {
+  title = 'Matka Ceramics',
+  description =
+    'Handmade ceramics thrown in Brooklyn. Each piece is one of a kind — when it is gone, it is gone.',
+} = Astro.props;
+
+const path = Astro.url.pathname;
+const isShop = path === '/' || path.startsWith('/piece');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&display=swap"
+    />
+  </head>
+
+  <body>
+    <div class="mk">
+      <aside class="mk-side">
+        <a class="mk-mark" href="/">
+          <Wordmark />
+          <em>ceramics</em>
+        </a>
+
+        <nav class="mk-nav">
+          <a href="/" aria-current={isShop ? 'page' : undefined}>Ceramics</a>
+          <a href="/about" aria-current={path === '/about' ? 'page' : undefined}>About</a>
+          <a class="cart" href="/cart">Cart (<span data-cart-count>0</span>)</a>
+        </nav>
+      </aside>
+
+      <main class="mk-main">
+        <slot />
+
+        <footer class="mk-foot">
+          <p class="nl">New pieces and studio sale dates, roughly monthly.</p>
+          <div class="lk">
+            <a href="https://www.instagram.com/matkaceramics/" rel="me">Instagram</a>
+            <a href="/about">Contact</a>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script define:vars={{ availableIds }}>
+      window.__MATKA_AVAILABLE__ = availableIds;
+    </script>
+
+    <script>
+      // The badge reads through the same module as everything else, so the
+      // cart's shape is defined in exactly one place.
+      import { read } from '../scripts/cart';
+
+      const available = new Set<string>((window as any).__MATKA_AVAILABLE__ ?? []);
+
+      const paint = () => {
+        const n = String(read().filter((l) => available.has(l.id)).length);
+        document.querySelectorAll('[data-cart-count]').forEach((el) => {
+          el.textContent = n;
+        });
+      };
+
+      paint();
+      window.addEventListener('storage', paint); // another tab changed it
+      document.addEventListener('matka:cart-changed', paint);
+    </script>
+  </body>
+</html>

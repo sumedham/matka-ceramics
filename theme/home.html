@@ -1,0 +1,31 @@
+{% comment %}
+  Home — deliberately identical to the Products grid. There is no hero and
+  no welcome copy: the first thing on the page is the first row of pots.
+  If the Home page ever renders empty, swap `products.current` for
+  `products.all` here — Big Cartel scopes them differently per page.
+{% endcomment %}
+
+{% if products.current.size == 0 %}
+  <p class="mk-empty">Nothing available right now. New pieces are announced on Instagram first.</p>
+{% else %}
+  <ul class="mk-grid">
+    {% for product in products.current %}
+      <li class="mk-item">
+        <a href="{{ product.url }}">
+          <img class="mk-shot"
+               src="{{ product.images | first | product_image_url: 'large' }}"
+               alt="{{ product.name }}"
+               loading="lazy">
+          <span class="mk-name">{{ product.name }}</span>
+          {% if product.status == 'sold-out' %}
+            <span class="mk-price out">Sold out</span>
+          {% elsif product.status == 'coming-soon' %}
+            <span class="mk-price out">Coming soon</span>
+          {% else %}
+            <span class="mk-price">{{ product.price | money_with_sign }}</span>
+          {% endif %}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

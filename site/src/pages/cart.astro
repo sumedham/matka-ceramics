@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+
+// The catalogue is embedded so the cart can render instantly without a fetch.
+// Prices here are for display only — the checkout function looks them up again
+// server-side and ignores anything the browser sends.
+const products = await getCollection('products');
+const catalogue = await Promise.all(
+  products.map(async (p) => ({
+    id: p.id,
+    title: p.data.title,
+    price: p.data.price,
+    soldOut: p.data.soldOut,
+    thumb: (await getImage({ src: p.data.image, width: 200, format: 'webp' })).src,
+  })),
+);
+---
+
+<Base title="Cart — Matka Ceramics">
+  <section class="mk-page mk-cart">
+    <h1>Cart</h1>
+
+    <p class="mk-empty" data-cart-empty hidden>
+      Nothing in the cart yet. <a href="/">Back to the ceramics</a>.
+    </p>
+
+    <ul class="mk-cart-list" data-cart-list></ul>
+
+    <div class="mk-cart-foot" data-cart-foot hidden>
+      <p class="mk-cart-total">
+        Subtotal <span data-cart-total>$0</span>
+      </p>
+      <p class="mk-note">Shipping is calculated at checkout. Taxes where applicable.</p>
+      <button class="mk-btn" type="button" data-checkout>Checkout</button>
+      <p class="mk-error" data-checkout-error hidden></p>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ catalogue }}>
+  window.__MATKA_CATALOGUE__ = catalogue;
+</script>
+
+<script>
+  import { read, remove, keepOnly } from '../scripts/cart';
+
+  type Item = {
+    id: string;
+    title: string;
+    price: number;
+    soldOut: boolean;
+    thumb: string;
+  };
+
+  const catalogue: Item[] = (window as any).__MATKA_CATALOGUE__ ?? [];
+  const byId = new Map(catalogue.map((p) => [p.id, p]));
+
+  const list = document.querySelector<HTMLUListElement>('[data-cart-list]')!;
+  const empty = document.querySelector<HTMLElement>('[data-cart-empty]')!;
+  const foot = document.querySelector<HTMLElement>('[data-cart-foot]')!;
+  const totalEl = document.querySelector<HTMLElement>('[data-cart-total]')!;
+  const btn = document.querySelector<HTMLButtonElement>('[data-checkout]')!;
+  const errEl = document.querySelector<HTMLElement>('[data-checkout-error]')!;
+
+  const buyable = catalogue.filter((p) => !p.soldOut).map((p) => p.id);
+
+  function paint() {
+    // A cart holding a piece that sold while the tab sat open heals itself here,
+    // in one write, rather than quietly disagreeing with the badge.
+    keepOnly(buyable);
+
+    const items = read()
+      .map((l) => byId.get(l.id))
+      .filter((p): p is Item => !!p && !p.soldOut);
+
+    list.innerHTML = items
+      .map(
+        (p) => `
+        <li class="mk-cart-row">
+          <img src="${p.thumb}" alt="" width="60" loading="lazy">
+          <span class="mk-cart-name">${p.title}</span>
+          <span class="mk-cart-price">$${p.price}</span>
+          <button type="button" class="mk-remove" data-remove="${p.id}"
+                  aria-label="Remove ${p.title}">Remove</button>
+        </li>`,
+      )
+      .join('');
+
+    const total = items.reduce((sum, p) => sum + p.price, 0);
+    totalEl.textContent = `$${total}`;
+
+    empty.hidden = items.length > 0;
+    foot.hidden = items.length === 0;
+  }
+
+  list.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-remove]');
+    if (!target) return;
+    remove(target.dataset.remove!);
+    paint();
+  });
+
+  btn.addEventListener('click', async () => {
+    const ids = read().map((l) => l.id);
+    if (ids.length === 0) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Taking you to checkout…';
+    errEl.hidden = true;
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Checkout is unavailable.');
+      window.location.href = data.url;
+    } catch (err) {
+      errEl.textContent =
+        err instanceof Error ? err.message : 'Checkout is unavailable right now.';
+      errEl.hidden = false;
+      btn.disabled = false;
+      btn.textContent = 'Checkout';
+    }
+  });
+
+  paint();
+  document.addEventListener('matka:cart-changed', paint);
+</script>
