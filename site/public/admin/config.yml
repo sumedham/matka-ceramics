@@ -17,6 +17,12 @@ site_url: https://matkaceramics.store
 
 publish_mode: simple
 
+# Required at the top level even though the products collection overrides both
+# below — without these, config validation fails and the admin renders nothing
+# but "The media folder is not defined".
+media_folder: site/src/assets/products
+public_folder: /assets/products
+
 collections:
   - name: products
     label: Ceramics
