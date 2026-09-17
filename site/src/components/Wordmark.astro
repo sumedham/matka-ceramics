@@ -1,31 +1,26 @@
 ---
 /*
-  PLACEHOLDER WORDMARK — a drawn vector, not a typeface.
-  Replace the whole <svg> with Sumedha's own artwork once vectorised.
-  Keep stroke="currentColor" so it inherits --red from the stylesheet.
+  Sumedha's own hand-drawn wordmark, taken from a screen recording of her
+  drawing it.
+
+  It is used as a CSS mask rather than an <img>, so the colour comes from the
+  stylesheet instead of being baked into the file. That means the logo inherits
+  --red and changes with the palette — the thing the old Big Cartel PNG could
+  never do, since it had cream baked into its background and no transparency.
+
+  The aspect ratio matches the artwork (627x240), so the box never distorts it.
 */
 ---
-<svg
-  viewBox="10 12 375 120"
-  fill="none"
-  stroke="currentColor"
-  stroke-width="11"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-  role="img"
-  aria-label="Matka"
->
-  <path d="M24,110 C24,84 28,56 40,54 C52,52 56,70 56,110 C56,78 62,54 74,54 C86,54 90,72 90,110 C90,78 96,54 108,54 C120,54 124,74 122,110" />
-  <path d="M122,110 C126,117 133,116 140,108" />
-  <path d="M174,60 C158,50 140,60 140,80 C140,100 158,108 172,98" />
-  <path d="M174,58 C174,80 173,98 176,110" />
-  <path d="M176,110 C180,116 187,115 194,107" />
-  <path d="M214,26 C212,60 210,90 212,102 C214,112 224,112 232,104" />
-  <path d="M198,56 C210,54 224,53 234,52" />
-  <path d="M252,24 C250,60 248,92 250,110" />
-  <path d="M250,82 C264,80 276,68 274,58 C272,48 260,52 252,70" />
-  <path d="M256,80 C268,86 278,98 286,110" />
-  <path d="M334,60 C318,50 300,60 300,80 C300,100 318,108 332,98" />
-  <path d="M334,58 C334,80 333,98 336,110" />
-  <path d="M336,110 C346,120 360,117 372,103" />
-</svg>
+
+<span class="mk-logo" role="img" aria-label="Matka Ceramics"></span>
+
+<style>
+  .mk-logo {
+    display: block;
+    height: 38px;
+    aspect-ratio: 627 / 240;
+    background: currentColor;
+    -webkit-mask: url('/wordmark.png') no-repeat center / contain;
+    mask: url('/wordmark.png') no-repeat center / contain;
+  }
+</style>

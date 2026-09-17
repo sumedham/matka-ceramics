@@ -50,6 +50,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ---------- wordmark ---------- */
 .mk-mark{display:flex;flex-direction:column;align-items:flex-start;gap:7px;color:var(--red)}
+/* the wordmark is a mask filled with currentColor, so it inherits --red */
 .mk-mark svg{height:38px;width:auto;display:block;overflow:visible}
 .mk-mark img{height:38px;width:auto}     /* when the real logo replaces the SVG */
 .mk-mark em{
