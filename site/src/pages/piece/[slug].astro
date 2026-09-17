@@ -13,7 +13,7 @@ const { Content } = await render(p);
 const shots = [p.data.image, ...(p.data.gallery ?? [])];
 ---
 
-<Base title={`${p.data.title} — Matka Ceramics`}>
+<Base title={`${p.data.title} | Matka Ceramics`}>
   <article class="mk-product">
     <div class="mk-product-imgs">
       {
@@ -37,13 +37,13 @@ const shots = [p.data.image, ...(p.data.gallery ?? [])];
 
       {
         p.data.soldOut ? (
-          <p class="mk-sold">Sold out — this one was the only one</p>
+          <p class="mk-sold">Sold out. This one was the only one</p>
         ) : (
           <div class="mk-form">
             <button class="mk-btn" type="button" data-add={p.id}>
               Add to cart
             </button>
-            <p class="mk-note">One of a kind. Ships from Brooklyn in 3–5 days.</p>
+            <p class="mk-note">One of a kind. Ships from Brooklyn in 3 to 5 days.</p>
           </div>
         )
       }
