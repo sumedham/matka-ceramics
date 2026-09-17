@@ -1,0 +1,31 @@
+---
+/*
+  Contact address, assembled in the browser so it isn't sitting in the HTML
+  source for address harvesters to scrape.
+
+  Without JavaScript it degrades to the readable "name [at] gmail.com" form
+  rather than vanishing — a human can still work it out, which matters more
+  than defeating every scraper.
+*/
+interface Props {
+  user?: string;
+  domain?: string;
+}
+
+const { user = 'sumedha.mehta', domain = 'gmail.com' } = Astro.props;
+---
+
+<span class="mk-email" data-user={user} data-domain={domain}>{user} [at] {domain}</span>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.mk-email').forEach((el) => {
+    const { user, domain } = el.dataset;
+    if (!user || !domain) return;
+
+    const address = `${user}@${domain}`;
+    const link = document.createElement('a');
+    link.href = `mailto:${address}`;
+    link.textContent = address;
+    el.replaceWith(link);
+  });
+</script>
