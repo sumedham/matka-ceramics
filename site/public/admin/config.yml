@@ -1,0 +1,84 @@
+# Sveltia CMS — the admin at /admin
+#
+# This writes the same markdown files in src/content/products that Claude edits
+# directly. Neither route is privileged; both are just commits to the repo, and
+# either one triggers a rebuild.
+
+backend:
+  name: github
+  repo: sumedham/matka-ceramics
+  branch: main
+  # The auth worker. Sveltia has no hosted sign-in service, so this is a small
+  # Cloudflare Worker on Sumedha's own account that completes GitHub OAuth.
+  base_url: https://sveltia-cms-auth.sumedha-mehta.workers.dev
+
+# Astro lives in a subdirectory of the repo.
+site_url: https://matkaceramics.store
+
+publish_mode: simple
+
+collections:
+  - name: products
+    label: Ceramics
+    label_singular: Piece
+    folder: site/src/content/products
+    create: true
+    delete: true
+    slug: '{{title}}'
+    identifier_field: title
+    summary: '{{title}} — ${{price}}'
+    sortable_fields: [order, title, price]
+
+    # Photographs land next to the others in src/assets, and the path written
+    # into the file is relative — which is the form Astro's image() schema
+    # needs in order to optimise them at build time.
+    media_folder: '../../assets/products'
+    public_folder: '../../assets/products'
+
+    fields:
+      - label: Name
+        name: title
+        widget: string
+        hint: What it is. Plain and descriptive beats clever.
+
+      - label: Price in dollars
+        name: price
+        widget: number
+        value_type: int
+        min: 1
+        hint: Numbers only — no dollar sign.
+
+      - label: Sold
+        name: soldOut
+        widget: boolean
+        default: false
+        required: false
+        hint: >-
+          Usually looks after itself — a piece is marked sold automatically the
+          moment it is paid for. Tick this by hand only for something sold at a
+          market or held back.
+
+      - label: Main photograph
+        name: image
+        widget: image
+        hint: Portrait, ideally 2:3. Landscape shots crop badly in the grid.
+
+      - label: More photographs
+        name: gallery
+        widget: list
+        field: { label: Photograph, name: photo, widget: image }
+        required: false
+        hint: Optional. Shown on the piece's own page, below the main one.
+
+      - label: Order
+        name: order
+        widget: number
+        value_type: int
+        default: 0
+        hint: Lower numbers come first. Leave at 0 to put new work at the top.
+
+      - label: Description
+        name: body
+        widget: text
+        required: false
+        hint: A line or two. What it is for, how it was made, how it behaves.
