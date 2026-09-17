@@ -1,0 +1,15 @@
+# Matka Ceramics — open to search engines.
+#
+# This file exists rather than being absent on purpose. Deleting it left a
+# stale copy cached at Cloudflare's edge that still said "Disallow: /", so the
+# shop stayed invisible after launch. An explicit permissive file overwrites
+# that cache deterministically.
+
+User-agent: *
+Allow: /
+
+# The CMS is for Sumedha, not for Google.
+Disallow: /admin
+
+# Nothing useful to index at the API endpoints.
+Disallow: /api/
