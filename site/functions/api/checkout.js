@@ -9,7 +9,7 @@
   by editing the page.
 
   Environment variables, set in the Cloudflare Pages dashboard (never committed):
-    STRIPE_SECRET_KEY   sk_test_... while testing, sk_live_... when you go live
+    STRIPE_SECRET   sk_test_... while testing, sk_live_... when you go live
     SHIPPING_CENTS      optional, flat shipping in cents. Omit or set 0 for free.
 */
 
@@ -22,7 +22,7 @@ const json = (body, status = 200) =>
   });
 
 export async function onRequestPost({ request, env }) {
-  if (!env.STRIPE_SECRET_KEY) {
+  if (!env.STRIPE_SECRET) {
     return json({ error: 'Payments are not configured yet.' }, 500);
   }
 
@@ -105,7 +105,7 @@ export async function onRequestPost({ request, env }) {
     const res = await fetch(STRIPE_API, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        authorization: `Bearer ${env.STRIPE_SECRET}`,
         'content-type': 'application/x-www-form-urlencoded',
       },
       body: form,
