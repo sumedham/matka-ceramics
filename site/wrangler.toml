@@ -1,0 +1,15 @@
+# Cloudflare Pages configuration.
+#
+# Kept in the repo rather than set through the dashboard, so the bindings the
+# Functions rely on are visible in code review and can't drift silently.
+
+name = "matka-ceramics"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+# Pieces that have sold. Written by the Stripe webhook the moment a payment
+# completes, and checked at checkout — so a piece becomes unbuyable instantly,
+# without waiting for a site rebuild.
+[[kv_namespaces]]
+binding = "SOLD"
+id = "782cdf1b74364be5921a6f299d420a14"

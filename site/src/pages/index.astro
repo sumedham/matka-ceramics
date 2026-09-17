@@ -17,7 +17,7 @@ const products = (await getCollection('products')).sort(
     ) : (
       <ul class="mk-grid">
         {products.map((p) => (
-          <li class="mk-item">
+          <li class="mk-item" data-piece={p.id}>
             <a href={`/piece/${p.id}`}>
               <Image
                 class="mk-shot"

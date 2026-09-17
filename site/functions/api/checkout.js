@@ -67,6 +67,21 @@ export async function onRequestPost({ request, env }) {
     items.push(p);
   }
 
+  // Pieces sold since the last build. products.json is only as fresh as the
+  // most recent deploy, so KV is what actually stops the same one-of-a-kind
+  // piece being sold twice in the minute between a sale and a rebuild.
+  if (env.SOLD) {
+    const sold = await Promise.all(wanted.map((id) => env.SOLD.get(id)));
+    const i = sold.findIndex((v) => v !== null);
+    if (i !== -1) {
+      const p = byId.get(wanted[i]);
+      return json(
+        { error: `${p?.title ?? 'A piece'} has just sold. Remove it to continue.` },
+        409,
+      );
+    }
+  }
+
   const form = new URLSearchParams();
   form.set('mode', 'payment');
   form.set('success_url', `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`);

@@ -88,6 +88,50 @@ const isShop = path === '/' || path.startsWith('/piece');
       paint();
       window.addEventListener('storage', paint); // another tab changed it
       document.addEventListener('matka:cart-changed', paint);
+
+      /*
+        These pages are static, so they are only as current as the last build.
+        Correct them against pieces that have sold since.
+
+        Cosmetic only — /api/checkout enforces the same list server-side, so if
+        this fetch is blocked or stale nobody can still buy a sold piece.
+      */
+      (async () => {
+        let sold: string[] = [];
+        try {
+          const res = await fetch('/api/sold');
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!Array.isArray(data?.sold) || data.sold.length === 0) return;
+          sold = data.sold;
+        } catch {
+          return; // offline or blocked: leave the page as built
+        }
+
+        const soldSet = new Set(sold);
+
+        document.querySelectorAll<HTMLElement>('[data-piece]').forEach((el) => {
+          if (!soldSet.has(el.dataset.piece!)) return;
+          const price = el.querySelector('.mk-price');
+          if (price) {
+            price.textContent = 'Sold out';
+            price.classList.add('out');
+          }
+        });
+
+        const addBtn = document.querySelector<HTMLButtonElement>('[data-add]');
+        if (addBtn && soldSet.has(addBtn.dataset.add!)) {
+          addBtn.disabled = true;
+          addBtn.textContent = 'Sold out';
+        }
+
+        // Shrink the buyable list so the badge and the cart drop it too.
+        const next = (available.size ? [...available] : []).filter((id) => !soldSet.has(id));
+        available.clear();
+        next.forEach((id) => available.add(id));
+        (window as any).__MATKA_AVAILABLE__ = next;
+        document.dispatchEvent(new CustomEvent('matka:cart-changed'));
+      })();
     </script>
   </body>
 </html>

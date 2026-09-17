@@ -64,16 +64,28 @@ const catalogue = await Promise.all(
   const btn = document.querySelector<HTMLButtonElement>('[data-checkout]')!;
   const errEl = document.querySelector<HTMLElement>('[data-checkout-error]')!;
 
-  const buyable = catalogue.filter((p) => !p.soldOut).map((p) => p.id);
+  /*
+    Read fresh each paint rather than caching: the layout narrows this list once
+    /api/sold answers, and the cart must drop anything that sold since.
+  */
+  const buyable = () => {
+    const live = (window as any).__MATKA_AVAILABLE__ as string[] | undefined;
+    const fromBuild = catalogue.filter((p) => !p.soldOut).map((p) => p.id);
+    if (!Array.isArray(live)) return fromBuild;
+    const stillLive = new Set(live);
+    return fromBuild.filter((id) => stillLive.has(id));
+  };
 
   function paint() {
     // A cart holding a piece that sold while the tab sat open heals itself here,
     // in one write, rather than quietly disagreeing with the badge.
-    keepOnly(buyable);
+    const ok = buyable();
+    keepOnly(ok);
+    const okSet = new Set(ok);
 
     const items = read()
       .map((l) => byId.get(l.id))
-      .filter((p): p is Item => !!p && !p.soldOut);
+      .filter((p): p is Item => !!p && !p.soldOut && okSet.has(p.id));
 
     list.innerHTML = items
       .map(
