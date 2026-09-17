@@ -20,7 +20,11 @@ const products = (await getCollection('products')).sort(
           <li class="mk-item" data-piece={p.id}>
             <a href={`/piece/${p.id}`}>
               <Image
-                class="mk-shot"
+                class={
+                  p.data.image.width / p.data.image.height > 1
+                    ? 'mk-shot wide'
+                    : 'mk-shot'
+                }
                 src={p.data.image}
                 alt={p.data.title}
                 widths={[280, 560, 840]}

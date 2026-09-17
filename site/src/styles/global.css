@@ -44,7 +44,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mk-side{padding:34px 24px 44px var(--pad)}
 /* the grid bleeds to the top and right edges of the window; only the menu
    column holds a margin. Everything that is not photographs pulls back in. */
-.mk-main{padding:0 0 46px;min-width:0}
+.mk-main{padding:14px 0 46px;min-width:0}
 .mk-foot,.mk-product,.mk-page{margin-right:var(--pad)}
 .mk-product,.mk-page{margin-top:34px}
 
@@ -78,6 +78,17 @@ button,input,select,textarea{font:inherit;color:inherit}
   width:100%;
   aspect-ratio:2/3;          /* matches how the pieces are photographed */
   object-fit:cover;
+  background:#F0EDE8;
+}
+/*
+  Landscape photographs. Cropping one to 2:3 throws away more than half the
+  frame, and these compositions use their full width — the filter coffee shot
+  puts a set in each opposite corner, so a centre crop cuts through both.
+  Letterbox instead: the tile keeps its place in the grid and nothing is lost.
+  Applied from the image's real dimensions at build time, not guessed in CSS.
+*/
+.mk-shot.wide{
+  object-fit:contain;
   background:#F0EDE8;
 }
 .mk-name{
