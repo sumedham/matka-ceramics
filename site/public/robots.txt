@@ -1,5 +1,0 @@
-# PRE-LAUNCH: the shop is not ready to take orders yet, so keep it out of
-# search results. DELETE THIS FILE (or replace the Disallow with "Allow: /")
-# on the day matkaceramics.store points here and checkout is live.
-User-agent: *
-Disallow: /
