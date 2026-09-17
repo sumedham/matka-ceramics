@@ -35,7 +35,7 @@ const isShop = path === '/' || path.startsWith('/piece');
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
     />
   </head>
 
@@ -88,6 +88,22 @@ const isShop = path === '/' || path.startsWith('/piece');
       paint();
       window.addEventListener('storage', paint); // another tab changed it
       document.addEventListener('matka:cart-changed', paint);
+
+      /*
+        Turn every obfuscated address into a real mailto link, keeping whatever
+        label the span already carries. Lives here rather than in the component
+        so it is emitted once per page instead of once per use.
+      */
+      document.querySelectorAll<HTMLElement>('.mk-email').forEach((el) => {
+        const { user, domain } = el.dataset;
+        if (!user || !domain) return;
+
+        const address = `${user}@${domain}`;
+        const link = document.createElement('a');
+        link.href = `mailto:${address}`;
+        link.textContent = (el.textContent || '').trim() || address;
+        el.replaceWith(link);
+      });
 
       /*
         These pages are static, so they are only as current as the last build.

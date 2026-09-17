@@ -168,9 +168,26 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ---------- generic page / cart / contact ---------- */
 .mk-page{max-width:60ch}
-.mk-page h1{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;margin-bottom:14px}
+
+/*
+  Page headings use Instrument Serif rather than Archivo. The grid needs its
+  tiny tracked caps to hold together, but on a page of prose those same caps
+  read as a system label instead of a heading. A high-contrast serif gives the
+  written pages their own voice without touching the shop.
+*/
+.mk-page h1{
+  font-family:'Instrument Serif',Georgia,serif;
+  font-size:34px;font-weight:400;line-height:1.1;letter-spacing:-.015em;
+  text-transform:none;color:var(--ink);margin-bottom:18px;
+}
+.mk-page h2{
+  font-family:'Instrument Serif',Georgia,serif;
+  font-size:21px;font-weight:400;line-height:1.2;letter-spacing:-.01em;
+  text-transform:none;color:var(--ink);margin:30px 0 10px;
+}
 .mk-page p{margin:0 0 12px;line-height:1.65}
 .mk-page a{text-decoration:underline;text-underline-offset:3px}
+.mk-page a:hover{color:var(--red)}
 
 /* ---------- footer ---------- */
 .mk-foot{

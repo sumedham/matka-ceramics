@@ -3,9 +3,13 @@
   Contact address, assembled in the browser so it isn't sitting in the HTML
   source for address harvesters to scrape.
 
-  Without JavaScript it degrades to the readable "name [at] gmail.com" form
-  rather than vanishing — a human can still work it out, which matters more
-  than defeating every scraper.
+  Pass a label as a child to show a word instead of the address:
+      <Email>email me</Email>
+  With no child it falls back to the readable "name [at] domain" form.
+
+  The script that turns these into links lives once in Base.astro, not here —
+  a component-level script gets re-emitted inline at every use, which dropped a
+  <script> tag into the middle of a paragraph.
 */
 interface Props {
   user?: string;
@@ -13,19 +17,12 @@ interface Props {
 }
 
 const { user = 'sumedha.mehta', domain = 'gmail.com' } = Astro.props;
+const hasLabel = Astro.slots.has('default');
 ---
 
-<span class="mk-email" data-user={user} data-domain={domain}>{user} [at] {domain}</span>
-
-<script>
-  document.querySelectorAll<HTMLElement>('.mk-email').forEach((el) => {
-    const { user, domain } = el.dataset;
-    if (!user || !domain) return;
-
-    const address = `${user}@${domain}`;
-    const link = document.createElement('a');
-    link.href = `mailto:${address}`;
-    link.textContent = address;
-    el.replaceWith(link);
-  });
-</script>
+<span class="mk-email" data-user={user} data-domain={domain}>
+  {hasLabel ? <slot /> : `${user} [at] ${domain}`}
+</span>{
+  /* Without JavaScript the label alone gives no way to reach her. */
+  hasLabel && <noscript> ({user} [at] {domain})</noscript>
+}
