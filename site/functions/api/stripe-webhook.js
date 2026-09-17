@@ -123,15 +123,34 @@ export async function onRequestPost({ request, env }) {
     return new Response('no pieces in metadata', { status: 200 });
   }
 
+  const at = new Date(now * 1000).toISOString();
+
   await Promise.all(
-    pieces.map((id) =>
-      env.SOLD.put(
-        id,
-        JSON.stringify({ soldAt: new Date(now * 1000).toISOString(), session: session.id }),
-      ),
-    ),
+    pieces.map((id) => env.SOLD.put(id, JSON.stringify({ soldAt: at, session: session.id }))),
   );
 
-  console.log('marked sold:', pieces.join(', '));
+  /*
+    A record of the sale itself, so there is a history to look back on rather
+    than only a list of what is currently unavailable.
+
+    Deliberately holds no customer details. Stripe already has the name, email
+    and address, and duplicating them here would mean personal data sitting in
+    a second place with no reason to be there. Money and pieces only.
+
+    Keyed by timestamp so `wrangler kv key list` comes back in date order.
+  */
+  const sale = {
+    at,
+    session: session.id,
+    pieces,
+    total: (session.amount_total ?? 0) / 100,
+    shipping: (session.shipping_cost?.amount_total ?? 0) / 100,
+    currency: (session.currency ?? 'usd').toUpperCase(),
+    live: session.livemode === true,
+  };
+
+  await env.SOLD.put(`sale:${at}:${session.id.slice(-8)}`, JSON.stringify(sale));
+
+  console.log('sale recorded:', JSON.stringify(sale));
   return new Response(`marked sold: ${pieces.join(', ')}`, { status: 200 });
 }

@@ -26,7 +26,12 @@ export async function onRequestGet({ env }) {
     cursor = page.list_complete ? undefined : page.cursor;
   } while (cursor);
 
-  return new Response(JSON.stringify({ sold: keys }), {
+  // The same namespace also holds `sale:` history records. Those are not
+  // pieces, and returning them here would have the grid trying to mark
+  // non-existent products sold.
+  const sold = keys.filter((name) => !name.startsWith('sale:'));
+
+  return new Response(JSON.stringify({ sold }), {
     headers: {
       'content-type': 'application/json',
       // Short cache: fresh enough to matter, cheap enough to serve.

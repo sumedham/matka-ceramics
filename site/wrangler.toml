@@ -7,6 +7,14 @@ name = "matka-ceramics"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-09-01"
 
+# Configuration, not credentials, so it lives here where it can be reviewed
+# rather than as an encrypted secret nobody can read back.
+[vars]
+# Flat shipping in cents. Stripe only supports fixed rates, so this is the same
+# for every destination. $10 under-charges the west coast and over-charges
+# Brooklyn; it is a compromise, not a calculation.
+SHIPPING_CENTS = "1000"
+
 # Pieces that have sold. Written by the Stripe webhook the moment a payment
 # completes, and checked at checkout — so a piece becomes unbuyable instantly,
 # without waiting for a site rebuild.
