@@ -111,6 +111,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 .mk-empty{color:var(--grey);font-size:13px}
 
+/*
+  Present to search engines and screen readers, absent on screen. The shop
+  needs a heading it does not visually want, because the grid is the design.
+*/
+.mk-sr{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
 /* ---------- product page ---------- */
 .mk-product{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:34px;align-items:start}
 .mk-product-imgs{display:grid;gap:14px}

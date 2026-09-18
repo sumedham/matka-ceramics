@@ -13,6 +13,7 @@
     "functions": "npm run build && wrangler pages dev dist --port 8788"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.3"
   },
   "allowScripts": {

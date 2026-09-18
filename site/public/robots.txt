@@ -13,3 +13,5 @@ Disallow: /admin
 
 # Nothing useful to index at the API endpoints.
 Disallow: /api/
+
+Sitemap: https://www.matkaceramics.store/sitemap-index.xml

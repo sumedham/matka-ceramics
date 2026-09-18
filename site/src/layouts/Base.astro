@@ -6,6 +6,12 @@ import { getCollection } from 'astro:content';
 interface Props {
   title?: string;
   description?: string;
+  /* Absolute or root-relative image for link previews. Falls back to the card. */
+  image?: string;
+  /* "website" for pages, "product" for a piece. */
+  ogType?: string;
+  /* Structured data for this page, serialised into a JSON-LD script. */
+  schema?: Record<string, unknown>;
 }
 
 // Ids that can still be bought. The badge filters against these so it can never
@@ -15,13 +21,38 @@ const availableIds = (await getCollection('products'))
   .map((p) => p.id);
 
 const {
-  title = 'Matka Ceramics',
+  title = 'Matka Ceramics | Handmade Indian ceramics from Brooklyn',
   description =
-    'Handmade ceramics thrown in Brooklyn. Each piece is one of a kind. When it is gone, it is gone.',
+    'Handmade ceramics thrown in Brooklyn, inspired by India. Chai khullads, matkas, ' +
+    'vases and candles. Every piece is one of a kind. When it is gone, it is gone.',
+  image = '/og.jpg',
+  ogType = 'website',
+  schema,
 } = Astro.props;
 
 const path = Astro.url.pathname;
 const isShop = path === '/' || path.startsWith('/piece');
+
+// Absolute URLs, because link previews and canonical tags both need them.
+const canonical = new URL(path, Astro.site ?? 'https://www.matkaceramics.store');
+const ogImage = new URL(image, Astro.site ?? 'https://www.matkaceramics.store');
+
+/*
+  Structured data. Without it Google treats the shop as an undifferentiated
+  page; with it, pieces can appear with a price and availability attached.
+*/
+const defaultSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Matka Ceramics',
+  url: 'https://www.matkaceramics.store',
+  description,
+  logo: new URL('/wordmark.png', Astro.site ?? 'https://www.matkaceramics.store').href,
+  sameAs: ['https://www.instagram.com/matkaceramics/'],
+  address: { '@type': 'PostalAddress', addressLocality: 'Brooklyn', addressRegion: 'NY', addressCountry: 'US' },
+};
+
+const jsonLd = schema ?? defaultSchema;
 ---
 
 <!doctype html>
@@ -31,6 +62,24 @@ const isShop = path === '/' || path.startsWith('/piece');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+
+    <!-- Link previews. Without these, sharing the shop anywhere shows no
+         picture at all, which for a shop made of photographs is the single
+         most expensive thing to get wrong. -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Matka Ceramics" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:alt" content="Handmade ceramics by Matka Ceramics" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage.href} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

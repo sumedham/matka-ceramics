@@ -11,9 +11,43 @@ export async function getStaticPaths() {
 const { p } = Astro.props;
 const { Content } = await render(p);
 const shots = [p.data.image, ...(p.data.gallery ?? [])];
+
+/*
+  Every page was sharing one generic description, so a search result could not
+  tell a candle from a vase. Use the piece's own words instead.
+*/
+const body = (p.body ?? '').trim().replace(/\s+/g, ' ');
+const description = body
+  ? `${body} Handmade in Brooklyn, one of a kind. $${p.data.price}.`
+  : `${p.data.title}, handmade in Brooklyn by Matka Ceramics. One of a kind. $${p.data.price}.`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: p.data.title,
+  description: body || p.data.title,
+  image: new URL(p.data.image.src, Astro.site).href,
+  brand: { '@type': 'Brand', name: 'Matka Ceramics' },
+  offers: {
+    '@type': 'Offer',
+    url: `https://www.matkaceramics.store/piece/${p.id}/`,
+    price: p.data.price,
+    priceCurrency: 'USD',
+    availability: p.data.soldOut
+      ? 'https://schema.org/SoldOut'
+      : 'https://schema.org/InStock',
+    itemCondition: 'https://schema.org/NewCondition',
+  },
+};
 ---
 
-<Base title={`${p.data.title} | Matka Ceramics`}>
+<Base
+  title={`${p.data.title} | Matka Ceramics`}
+  description={description}
+  image={p.data.image.src}
+  ogType="product"
+  schema={schema}
+>
   <article class="mk-product">
     <div class="mk-product-imgs">
       {

@@ -6,9 +6,41 @@ import Base from '../layouts/Base.astro';
 const products = (await getCollection('products')).sort(
   (a, b) => a.data.order - b.data.order,
 );
+
+// Tells Google what the grid is, rather than leaving it to infer a list of
+// images. Prices and availability come straight from the same content files
+// the shop is built from, so they cannot drift.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Ceramics by Matka Ceramics',
+  url: 'https://www.matkaceramics.store/',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Product',
+        name: p.data.title,
+        url: `https://www.matkaceramics.store/piece/${p.id}/`,
+        offers: {
+          '@type': 'Offer',
+          price: p.data.price,
+          priceCurrency: 'USD',
+          availability: p.data.soldOut
+            ? 'https://schema.org/SoldOut'
+            : 'https://schema.org/InStock',
+        },
+      },
+    })),
+  },
+};
 ---
 
-<Base>
+<Base schema={schema}>
+  <h1 class="mk-sr">Handmade Indian ceramics, thrown in Brooklyn</h1>
   {
     products.length === 0 ? (
       <p class="mk-empty">
